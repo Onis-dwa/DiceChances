@@ -10,9 +10,9 @@ table_print = True
 if table_print:
     from prettytable import PrettyTable
 
-    header = ['dices']
-    for dice in range(necessary_dices):
-        header += [f'wins{dice} (%)', 'iters'] if is_debug else  [f'wins{dice} (%)']
+    header = ['dices', 'iters'] if is_debug else ['dices']
+    for dice in range(1, necessary_dices + 1):
+        header += [f'w{dice} %', f'i{dice}'] if is_debug else  [f'w{dice} %']
     table = PrettyTable(header)
     table.align = "r"
     table.float_format = '.2'
@@ -21,7 +21,7 @@ iters = 0 # total number of calculated dices
 wins = [0 for _ in range(necessary_dices)] # dimensioning for each dice (the odds will be stacked against him)
 
 print('\n\nnecessary_dices:', necessary_dices, '; successful_grands:', successful_grands)
-for count_dices in range(1, total_dices+1):
+for count_dices in range(1, total_dices + 1):
     # optimized iteration based on previous count_dices, without iterating over each specific case
     #     we summarize wins and multiplied iterations
     nwins = [0 for _ in range(necessary_dices)] # copy, because we need use the previous value
@@ -31,7 +31,7 @@ for count_dices in range(1, total_dices+1):
                 if idx == 0: # iterations when we check the first dice (and use 1 for first dice)
                     nwins[idx] += iters if iters else 1
                 else: # previous dice (wins)
-                    nwins[idx] += wins[idx-1]
+                    nwins[idx] += wins[idx - 1]
         else: # else other grand we must summarize current dice (wins):
             for idx, _ in zip(range(len(wins)), wins):
                 nwins[idx] += wins[idx]
@@ -42,17 +42,17 @@ for count_dices in range(1, total_dices+1):
     if table_print:
         row = [count_dices, iters] if is_debug else [count_dices]
         for successful_combinations in wins:
-            chanse = successful_combinations/iters*100
+            chanse = successful_combinations / iters * 100
             row += [chanse, successful_combinations] if is_debug else [chanse]
         table.add_row(row)
     else:
-        print(f'dices: {count_dices:>{len(str(total_dices))+1}}; ', end='')
+        print(f'dices: {count_dices:>{len(str(total_dices)) + 1}}; ', end='')
         if is_debug:
             print(f'iters: {iters:>{debug_iters_padding}}; ', end='')
-        for idx, successful_combinations in zip(range(len(wins)), wins):
-            print(f'wins{idx+1}: {successful_combinations/iters*100:>6.2f}%; ', end='')
+        for idx, successful_combinations in zip(range(1, len(wins) + 1), wins):
+            print(f'w{idx}: {successful_combinations / iters * 100:>6.2f}%; ', end='')
             if is_debug:
-                print(f'passed: {successful_combinations:>{debug_iters_padding}}; ', end='')
+                print(f'i{idx}: {successful_combinations:>{debug_iters_padding}}; ', end='')
         print()
 if table_print:
     print(table)
